@@ -7,7 +7,22 @@
 <div class="card"><h3>Tools database</h3><p class="muted">Add/update catalog records. This starter panel stores tool records in D1; it does not yet rewrite the static homepage or tool pages.</p><form id="toolForm"><div class="row"><input id="slug" placeholder="Tool slug e.g. word-counter" required><input id="title" placeholder="Tool title" required></div><div class="row"><input id="category" placeholder="Category"><input id="price" type="number" min="0" step=".01" placeholder="Price ₹ (0 = free)"></div><label><input id="paid" type="checkbox" style="width:auto"> Paid tool</label><button>Save tool record</button></form><div id="toolList" class="muted"></div></div></section></main>
 <script>
 const $=id=>document.getElementById(id), money=p=>'₹'+(Number(p||0)/100).toFixed(2);
-async function api(path,opts={}){const r=await fetch(path,{credentials:'same-origin',...opts,headers:{'content-type':'application/json',...(opts.headers||{})}});let d={};try{d=await r.json()}catch{}if(!r.ok)throw Error(d.error||'Request failed');return d}
+const API_BASE = "https://mahatools-api.mahatools.workers.dev";
+
+async function api(path,opts={}) {
+  const r = await fetch(API_BASE + path, {
+    credentials: "include",
+    ...opts,
+    headers: {
+      "content-type": "application/json",
+      ...(opts.headers || {})
+    }
+  });
+  let d = {};
+  try { d = await r.json(); } catch {}
+  if (!r.ok) throw Error(d.error || "Request failed");
+  return d;
+}
 function show(on){$('login').classList.toggle('hidden',on);$('dashboard').classList.toggle('hidden',!on);$('logout').classList.toggle('hidden',!on)}
 async function refresh(){const d=await api('/api/admin/stats');$('online').textContent=d.online;$('visitors').textContent=d.visitors;$('toolsCount').textContent=d.tools;$('uses').textContent=d.usesToday;$('today').textContent=money(d.todayPaise);$('month').textContent=money(d.monthPaise);try{const t=await api('/api/admin/tools');$('toolList').innerHTML=t.tools.length?'<table><tr><th>Tool</th><th>Category</th><th>Paid</th><th>Enabled</th></tr>'+t.tools.map(x=>`<tr><td>${escapeHtml(x.title)}</td><td>${escapeHtml(x.category||'')}</td><td>${x.is_paid?'Yes':'No'}</td><td>${x.enabled?'Yes':'No'}</td></tr>`).join('')+'</table>':'No tool records yet.'}catch(e){$('toolList').textContent=e.message}}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
