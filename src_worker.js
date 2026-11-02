@@ -91,12 +91,15 @@ async function api(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
     if (url.pathname.startsWith("/api/")) {
-      try { return await api(request,env); } catch (e) { return json({error:"Server error"},500); }
+      try {
+        return await api(request, env);
+      } catch (e) {
+        return json({ error: "Server error" }, 500);
+      }
     }
-    if (url.pathname === "/admin" || url.pathname === "/admin/") {
-      return env.ASSETS.fetch(new Request(new URL("/admin/index.html",request.url),request));
-    }
-    return env.ASSETS.fetch(request);
+
+    return json({ error: "MahaTools API is running" }, 200);
   }
 };
