@@ -22,8 +22,7 @@ async function api(path,opts={}) {
   try { d = await r.json(); } catch {}
   if (!r.ok) throw Error(d.error || "Request failed");
   return d;
-}
-function show(on){$('login').classList.toggle('hidden',on);$('dashboard').classList.toggle('hidden',!on);$('logout').classList.toggle('hidden',!on)}
+}function show(on){$('login').classList.toggle('hidden',on);$('dashboard').classList.toggle('hidden',!on);$('logout').classList.toggle('hidden',!on)}
 async function refresh(){const d=await api('/api/admin/stats');$('online').textContent=d.online;$('visitors').textContent=d.visitors;$('toolsCount').textContent=d.tools;$('uses').textContent=d.usesToday;$('today').textContent=money(d.todayPaise);$('month').textContent=money(d.monthPaise);try{const t=await api('/api/admin/tools');$('toolList').innerHTML=t.tools.length?'<table><tr><th>Tool</th><th>Category</th><th>Paid</th><th>Enabled</th></tr>'+t.tools.map(x=>`<tr><td>${escapeHtml(x.title)}</td><td>${escapeHtml(x.category||'')}</td><td>${x.is_paid?'Yes':'No'}</td><td>${x.enabled?'Yes':'No'}</td></tr>`).join('')+'</table>':'No tool records yet.'}catch(e){$('toolList').textContent=e.message}}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginMsg').textContent='';try{await api('/api/auth/login',{method:'POST',body:JSON.stringify({email:$('email').value,password:$('password').value})});$('password').value='';show(true);await refresh()}catch(err){$('loginMsg').textContent=err.message}});
