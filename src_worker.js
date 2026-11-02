@@ -100,6 +100,12 @@ export default {
       }
     }
 
-    return json({ error: "MahaTools API is running" }, 200);
+    if (url.pathname === "/admin") {
+      return Response.redirect(
+        new URL("/admin/", request.url), 302
+      );
+    }
+
+    return env.ASSETS.fetch(request);
   }
 };
